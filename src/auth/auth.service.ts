@@ -5,12 +5,16 @@ import { AccountRequestEntity } from '../services/Account/account.dto';
 import { Response } from 'express';
 import { HttpStatus } from '@nestjs/common/enums';
 import { HttpException } from '@nestjs/common/exceptions';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-    constructor(private accountService: AccountService) {}
+    constructor(
+        private accountService: AccountService,
+        private jwtService: JwtService
+    ) {}
 
-    async signIn(params: AccountRequestEntity): Promise<Account> {
+    async signIn(params: AccountRequestEntity): Promise<any> {
         let where: Prisma.AccountWhereInput = {
             NIU: params.NIU,
             password: params.password
@@ -19,12 +23,17 @@ export class AuthService {
         //     if (params[x]) payload[x] = params[x];
         //   });
         let data = await this.accountService.getAccountId({where})
-        if (data){
-            return data
-        }
-        else {
-            throw new HttpException('not found', HttpStatus.NOT_FOUND)
-        }
+        if (data.NIU === params.NIU && data.password === params.password) {
+                const payload = {sub: data.id, NIU: data.NIU}
+                console.log(payload)
+                return {
+                    access_token : await this.jwtService.signAsync(payload, {secret: "jwtConstants.secret", expiresIn: 3600})                
+                    // access_token: this.jwtService.sign(payload)
+                }
+            }
+            else {
+                throw new HttpException('not authorized', HttpStatus.NOT_FOUND)
+            }
 
     }
 }

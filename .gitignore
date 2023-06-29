@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+#constants jwt
+/src/auth/constants.ts
+
 # Logs
 logs
 *.log

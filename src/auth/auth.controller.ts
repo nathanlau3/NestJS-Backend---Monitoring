@@ -14,23 +14,17 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @Post('login')
     async signIn(@Body() signInDto: AuthEntity, @Res() res: Response, ) {
-        let data = await this.authService.signIn(signInDto)
+        let data = await this.authService.signIn(signInDto)        
+        console.log(data)
         if (data) {
-            if (data.NIU === signInDto.NIU && data.password === signInDto.password) {
-                const payload = {sub: data.id, NIU: data.NIU}
-                res.status(200).send({
-                    access_token: await this.jwtService.signAsync(payload)
-                })
-            }
-            else {
-                res.status(401).send({
-                    message: "Not Authorized"
-                })
-            }
+            res.status(200).send({
+                message: "Succed",
+                data
+            })
         }
         else {
-            res.status(404).send({
-                message: "Not found"
+            res.status(401).send({
+                message: "Not Authorized"
             })
         }
     }

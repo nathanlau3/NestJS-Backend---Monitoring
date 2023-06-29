@@ -9,11 +9,14 @@ import {
   Query,
   Req,
   Res,
+  UseGuards
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { Account as AccountModel, Prisma } from '@prisma/client';
 import { AccountAddEntity, AccountRequestEntity } from './account.dto';
-import {Request, Response} from 'express'
+import { AuthGuard } from '../../auth/auth.guard';
+import { AuthService } from '../../auth/auth.service';
+import {Response} from 'express'
 
 @Controller('/account')
 export class AccountController {
@@ -26,11 +29,12 @@ export class AccountController {
     return this.accountService.getAccountId({ where: akun });
   }
 
+  @UseGuards(AuthGuard)
   @Get('/')
   async getAccount(    
     @Res() res: Response,
     @Query() accountData: AccountRequestEntity,
-  ): Promise<Response> {
+  ): Promise<Response> {            
     let where: Prisma.AccountWhereInput = {
       id: null,
       NIU: null,
